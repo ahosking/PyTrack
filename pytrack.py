@@ -40,10 +40,10 @@ class pytrack(object):
         :param description: Any text that should be added to the time entry
         :return: a success message with the issue, time added and text returned, else false
         """
-        workitem = "<?xml version = \"1.0\" encoding=\"UTF-8\"?>\n<workItem>\n" +\
+        workitem = "<workItem>\n" +\
             "<date>" + str(int(time.time())) + "000" + "</date>\n" +\
-            "<duration>" + "60" + "</duration>\n" +\
-            "<description>" + "TIME!!!" + "</description>\n" +\
+            "<duration>" + str(timeadded) + "</duration>\n" +\
+            "<description>" + description + "</description>\n" +\
             "</workItem>"
         #Youtrack represents the correct date only when I add "000" to the end of the time stamp...
         try:
