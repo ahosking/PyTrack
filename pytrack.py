@@ -22,7 +22,6 @@ class pytrack(object):
         '''
         This will enable you to add a comment to the issue specified with the associated author
         and the comment provided.
-
         :param issue:
         :param author:
         :param comment:
@@ -34,7 +33,9 @@ class pytrack(object):
             submitURL = self.baseURL +\
                 "issue/" + issue + "/execute?comment=" + comment + "&runas=" + author
             r = requests.post(submitURL, auth=(self.username, self.password))
+            print "Your attempt to add a comment to %s returned %s." % (issue, str(r.status_code))
             return ("Your comment was added to " + issue + " successfully.")
+
         except:
             return submitURL
 
@@ -68,31 +69,57 @@ class pytrack(object):
                 pass
 
             
-    def add_time(self, issue, timeadded, description=None):
+    def add_time(self, issue, timeadded, description=None, worktype=None):
         """
         :param issue: The issue number
-        :param time: Time in a number with data for value, this must be converted to minutes (ex: H=hours, m=minutes)
+        :param timeadded: Time in minutes to be added to the ticket
         :param description: Any text that should be added to the time entry
+        :param worktype: This will work if any of the defined worktypes is entered. This is left out if unspecified
         :return: a success message with the issue, time added and text returned, else false
         """
-        workitem = "<workItem>\n" +\
-            "<date>" + str(int(time.time())) + "000" + "</date>\n" +\
-            "<duration>" + str(timeadded) + "</duration>\n" +\
-            "<description>" + description + "</description>\n" +\
-            "</workItem>"
+        if worktype == None:
+            workitem = "<workItem>\n" +\
+                "<date>" + str(int(time.time())) + "000" + "</date>\n" +\
+                "<duration>" + str(timeadded) + "</duration>\n" +\
+                "<description>" + description + "</description>\n" +\
+                "</workItem>"
+        else:
+            workitem = "<workItem>\n" +\
+                "<date>" + str(int(time.time())) + "000" + "</date>\n" +\
+                "<duration>" + str(timeadded) + "</duration>\n" +\
+                "<description>" + description + "</description>\n" +\
+                "<worktype><name>" + worktype + "</name></worktype>\n" +\
+                "</workItem>"
         #Youtrack represents the correct date only when I add "000" to the end of the time stamp...
         try:
             submitURL = self.baseURL + "issue/" + issue + "/timetracking/workitem"
             headers = {'content-type': 'application/xml'}
             r = requests.post(submitURL, data=workitem, headers=headers, auth=(self.username, self.password))
-            print r.status_code
-            ##FINISH this message
-            return "Your time item was added successfully."
+            message = "You added %s minutes to ticket %s.\n %s" % (timeadded, issue, r.text)
+            print message
+            return message
         except:
-            return
+            message = "You failed to add %s minutes to ticket %s.\n %s" % (timeadded, issue, r.text)
+            print message
+            return message
 
     def delete_time(self, issue, itemID):
-        pass
+        '''
+        :param issue: The issue number
+        :param itemID: The workitem (time entry) to be removed
+        :return: Returns a message letting the user know of success or failure and the corresponding data
+        '''
+        submitURL = self.baseURL + "issue/" + issue + "/timetracking/workitem/" + itemID
+        try:
+            r = requests.delete(submitURL, auth=(self.username, self.password))
+            message = "You successfully removed time entry %s on issue %s" % (issue, itemID)
+            print message
+            return message
+        except:
+            message = "You failed to remove time entry: %s on issue %s" % (itemID, issue)
+            print message
+            return message
+
 
     ### Projects ###
     def get_projects(self, verbose=None):

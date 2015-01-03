@@ -8,6 +8,9 @@ This Readme will soon detail full use and integration of PyTrack!
         
         pip install requests
 
+*Youtrack 4.0 or later should be fine
+
+
 # Usage #
 
     from pytrack import pytrack
