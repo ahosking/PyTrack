@@ -6,9 +6,9 @@ This Readme will soon detail full use and integration of PyTrack!
 
 # Useage #
 
-<code>
-from pytrack import pytrack
-p = pytrack(<YOUTRACK_URL>, <PORT>, <USERNAME>, <PASSWORD>)
-</code>
+
+    from pytrack import pytrack
+    p = pytrack(<YOUTRACK_URL>, <PORT>, <USERNAME>, <PASSWORD>)
+
 
 From here you can call the various methods providing you include the appropriate request data.
