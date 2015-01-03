@@ -4,7 +4,8 @@ This Readme will soon detail full use and integration of PyTrack!
 
 # Requirements #
 * Python 2.7
-* python requests.
+* python requests
+
     pip install requests
 
 # Useage #
