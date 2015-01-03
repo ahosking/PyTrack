@@ -3,11 +3,11 @@
 This Readme will soon detail full use and integration of PyTrack!
 
 # Requirements #
-* Python 2.7
-* python requests
-** pip install requests
+*. Python 2.7
+*. python requests
+..* pip install requests
 
-# Useage #
+# Usage #
 
     from pytrack import pytrack
     p = pytrack(<YOUTRACK_URL>, <PORT>, <USERNAME>, <PASSWORD>)
