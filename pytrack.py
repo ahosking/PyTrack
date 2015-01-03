@@ -3,7 +3,6 @@ import time #Required for time time stamping in youtrack
 
 #Dependencies
 import requests
-from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
 #This class will allow you to submit to a specified Youtrack installation
