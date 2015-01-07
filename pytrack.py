@@ -138,3 +138,22 @@ class pytrack(object):
         r = requests.get(submitURL, auth=(self.username, self.password))
         # print r.status_code
         return r.text
+
+    def put_project(self, projectId, projectName, startingNumber, projectLeadLogin, description=None):
+        '''
+
+        :param projectId: Unique STRING identifier for the project
+        :param projectName: STRING name
+        :param startingNumber: STRING integer for the first ticket number
+        :param projectLeadLogin: STRING username to be assigned project leader
+        :param description: Optional STRING description of the project
+        :return: Undefined currently
+        '''
+        submitURL = self.baseURL + "admin/project/" + projectId + "?projectName=" + projectName + "&startingNumber=" \
+                    + startingNumber + "&projectLeadLogin=" + projectLeadLogin
+        if description != None:
+            #Description has been defined so append it to our url
+            submitURL += "&description=" + description
+
+        r = requests.put(submitURL, auth=(self.username, self.password))
+        return r.text   #This currently returns Nothing and status_code errors out despite the request succeeding...
