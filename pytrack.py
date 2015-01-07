@@ -122,6 +122,10 @@ class pytrack(object):
 
 
     ### Projects ###
+    def get_project(self, project):
+        submitURL = self.baseURL + "admin/project/" + project
+        r = requests.get(submitURL, auth=(self.username, self.password))
+        return r.text
     def get_projects(self, verbose=None):
         '''
         :param verbose:
@@ -132,5 +136,5 @@ class pytrack(object):
         submitURL = self.baseURL + "project/all?" + str(verbose)
 
         r = requests.get(submitURL, auth=(self.username, self.password))
-        print r.status_code
+        # print r.status_code
         return r.text
