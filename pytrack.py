@@ -122,10 +122,37 @@ class pytrack(object):
 
 
     ### Projects ###
-    def get_project(self, project):
-        submitURL = self.baseURL + "admin/project/" + project
-        r = requests.get(submitURL, auth=(self.username, self.password))
-        return r.text
+    def get_project(self, projectId, assignee=None):
+        submitURL = self.baseURL + "admin/project/" + projectId
+        if assignee != True:
+            r = requests.get(submitURL, auth=(self.username, self.password))
+            return r.text
+        else:
+            #We want the project assignee
+            submitURL += "/assignee"
+            r = requests.get(submitURL, auth=(self.username, self.password))
+
+            tree = ET.fromstring(r.text)
+            print "------------------------------------"
+            print "Assignees in", projectId
+            print "------------------------------------"
+            for x in tree.iter("assignees"):
+                # print x.tag, x.attrib
+                try:
+                    for a in x.iter():
+                        if not a.tag == "None":
+                            if a.attrib == {}:
+                                print a.tag, a.text
+                            else:
+                                print a.tag, a.attrib, a.text
+                except:
+                    pass
+        returnData = ET.fromstring(r.text)
+        for i in tree.items():
+            print "%s:%s" % (i[0], i[1])
+            return ""
+
+
     def get_projects(self, verbose=None):
         '''
         :param verbose:
@@ -156,4 +183,14 @@ class pytrack(object):
             submitURL += "&description=" + description
 
         r = requests.put(submitURL, auth=(self.username, self.password))
-        return r.text   #This currently returns Nothing and status_code errors out despite the request succeeding...
+        message = "Your project: " + projectId + " returned: " + r.text
+        return message   #This currently returns Nothing and status_code errors out despite the request succeeding...
+
+    def delete_project(self, projectId):
+        '''
+        :param projectId: STRING the project ID to delete
+        :return: a success message
+        '''
+        submitURL = self.baseURL + "admin/project/" + projectId
+        r = requests.delete(submitURL, auth=(self.username, self.password))
+        return r.text
