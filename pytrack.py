@@ -1,5 +1,5 @@
 #Standard classes
-import time #Required for time time stamping in youtrack
+import time
 
 #Dependencies
 import requests
@@ -28,7 +28,7 @@ class pytrack(object):
         :return:
         '''
         # youtrack_method = "issue/" + issue + "/execute?comment=" + comment + "&runas=" + author
-        # outrack_url = "http://youtrack.arcestra.com:8180/rest/" + youtrack_method
+        # youtrack_url = "http://youtrack.arcestra.com:8180/rest/" + youtrack_method
         try:
             submitURL = self.baseURL +\
                 "issue/" + issue + "/execute?comment=" + comment + "&runas=" + author
@@ -68,7 +68,7 @@ class pytrack(object):
             except:
                 pass
 
-            
+
     def add_time(self, issue, timeadded, description=None, worktype=None):
         """
         :param issue: The issue number
@@ -131,26 +131,26 @@ class pytrack(object):
             #We want the project assignee
             submitURL += "/assignee"
             r = requests.get(submitURL, auth=(self.username, self.password))
-
-            tree = ET.fromstring(r.text)
-            print "------------------------------------"
-            print "Assignees in", projectId
-            print "------------------------------------"
-            for x in tree.iter("assignees"):
-                # print x.tag, x.attrib
-                try:
-                    for a in x.iter():
-                        if not a.tag == "None":
-                            if a.attrib == {}:
-                                print a.tag, a.text
-                            else:
-                                print a.tag, a.attrib, a.text
-                except:
-                    pass
-        returnData = ET.fromstring(r.text)
-        for i in tree.items():
-            print "%s:%s" % (i[0], i[1])
-            return ""
+            return r.text
+        #     tree = ET.fromstring(r.text)
+        #     print "------------------------------------"
+        #     print "Assignees in", projectId
+        #     print "------------------------------------"
+        #     for x in tree.iter("assignees"):
+        #         # print x.tag, x.attrib
+        #         try:
+        #             for a in x.iter():
+        #                 if not a.tag == "None":
+        #                     if a.attrib == {}:
+        #                         print a.tag, a.text
+        #                     else:
+        #                         print a.tag, a.attrib, a.text
+        #         except:
+        #             pass
+        # returnData = ET.fromstring(r.text)
+        # for i in tree.items():
+        #     print "%s:%s" % (i[0], i[1])
+        #     return ""
 
 
     def get_projects(self, verbose=None):
