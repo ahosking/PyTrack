@@ -1,4 +1,4 @@
-tests/
+tests/creds.py
 .idea/
 env/
 *.pyc
