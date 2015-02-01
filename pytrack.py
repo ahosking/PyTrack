@@ -18,7 +18,38 @@ class pytrack(object):
             #Port has been entered, affix it to the base URL
             self.baseURL += ":" + self.port + "/rest/"
 
-    def add_comment(self, issue, author, comment):
+    def comments_get(self, issue, wikifyDescription=None):
+        #GET /rest/issue/{issue}/comment&{wikifyDescription}
+        try:
+            submitURL = self.baseURL + "issue/" + issue + "/comment"
+            r = requests.get(submitURL, auth=(self.username, self.password))
+            print "This has returned:\n", r.text
+            #Parse things!
+            tree = ET.fromstring(r.text)
+            message = "------------------------------------\n"
+            message += "There are " + str(len(tree)) + " comments in " + issue + ":\n"
+            message += "------------------------------------\n"
+
+            for x in tree.iter("comments"):
+                # print x.tag, x.attrib
+                for a in x.iter():
+                    if a.tag == "comment":
+                        # print a.attrib
+                        # print a.text
+                        comment = a.attrib
+                        # format the message like below
+                        # Comment ID|Comment|Author|Created
+                        # 89-20|'Testing Phase 2'|'ahoskng'|'1422764898079'
+                        message += (comment['id'] + " | " + comment['text'] + " | " + comment['author'] +\
+                                    " | " + comment['created'] + "\n")
+            print message
+            return message
+        except:
+            message = "We could not retrieve comments for issue: " + issue
+            print message
+            return message
+
+    def comments_add(self, issue, author, comment):
         '''
         This will enable you to add a comment to the issue specified with the associated author
         and the comment provided.
@@ -33,12 +64,50 @@ class pytrack(object):
             submitURL = self.baseURL +\
                 "issue/" + issue + "/execute?comment=" + comment + "&runas=" + author
             r = requests.post(submitURL, auth=(self.username, self.password))
-            print "Your attempt to add a comment to %s returned %s." % (issue, str(r.status_code))
+            #print "Your attempt to add a comment to %s returned %s." % (issue, str(r.status_code)) #Originally used for debugging. Must make prettier!
+            message = "You have successfully added the comment: \n\"" + comment + "\" to issue: " + issue
+            print message
             return ("Your comment was added to " + issue + " successfully.")
 
         except:
             return submitURL
 
+    def comments_remove(self, issue, comments, permanently=None):
+        '''
+
+        :param issue: String of the issue number
+        :param comments: String or tuple of strings for comment(s) to delete
+        :param permanently:  Boolean to permanently delete comments
+        :return: Summarize the actions taken
+        '''
+        # DELETE /rest/issue/{issue}/comment/{comment}?{permanently}
+        print "You are trying to delete ", comments
+        submitURL = ""
+        if type(comments) == str:
+            submitURL = self.baseURL + "issue/" + issue + "/comment/" + comments
+        elif type(comments) == list:
+            submitURL = []
+            for item in comments:
+                submitURL.append(self.baseURL + "issue/" + issue + "/comment/" + item)
+
+        if permanently:
+            if type(submitURL) == str:
+                submitURL += "?permanently=True"
+            else:
+                for i in submitURL:
+                    i += "?permanently=True"
+        try:
+            if type(submitURL) == str:
+                print submitURL
+                r = requests.delete(submitURL, auth=(self.username, self.password))
+            else:
+                for i in submitURL:
+                    i += "?permanently=True"
+                    print i
+                    r = requests.delete(i, auth=(self.username, self.password))
+
+        except:
+            print "We failed..."
 
 
     ### Time Tracking ###
