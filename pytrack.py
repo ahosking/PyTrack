@@ -8,6 +8,11 @@ import xml.etree.ElementTree as ET
 #This class will allow you to submit to a specified Youtrack installation
 #via python and the requests module.
 
+'''need to create error trapping for dead youtrack servers/connectios
+###Also need to break out the connection so that it uses credentials while no cookies are available.
+###Otherwise cookies should be used so that we are not always sending credentials
+'''
+
 class pytrack(object):
     def __init__(self, baseURL, port=None, username=None, password=None):
         self.baseURL = baseURL
@@ -77,7 +82,8 @@ class pytrack(object):
 
         :param issue: String of the issue number
         :param comments: String or tuple of strings for comment(s) to delete
-        :param permanently:  Boolean to permanently delete comments
+        :param permanently:  Boolean to permanently delete comments - It should be noted that as of 2/2/2015,\
+         this does not work as expected. As of 02/07/2015 This is marked as fixed in youtrack 6.1
         :return: Summarize the actions taken
         '''
         # DELETE /rest/issue/{issue}/comment/{comment}?{permanently}
@@ -92,20 +98,32 @@ class pytrack(object):
 
         if permanently:
             if type(submitURL) == str:
-                submitURL += "?permanently=True"
+                submitURL += "?permanently=true"
             else:
                 for i in submitURL:
-                    i += "?permanently=True"
+                    i += "?permanently=true"
         try:
             if type(submitURL) == str:
                 print submitURL
                 r = requests.delete(submitURL, auth=(self.username, self.password))
+                if r.status_code != 200:
+                    print submitURL, "either does not exist or couldn't be deleted."
             else:
-                for i in submitURL:
-                    i += "?permanently=True"
-                    print i
-                    r = requests.delete(i, auth=(self.username, self.password))
-
+                if permanently:
+                    for i in submitURL:
+                        i += "?permanently=true"
+                        r = requests.delete(i, auth=(self.username, self.password))
+                        if r.status_code != 200:
+                            print submitURL, "either does not exist or couldn't be deleted."
+                        else:
+                            print i
+                else:
+                    for i in submitURL:
+                        r = requests.delete(i, auth=(self.username, self.password))
+                        if r.status_code != 200:
+                            print submitURL, "either does not exist or couldn't be deleted."
+                        else:
+                            print i
         except:
             print "We failed..."
 
@@ -263,3 +281,29 @@ class pytrack(object):
         submitURL = self.baseURL + "admin/project/" + projectId
         r = requests.delete(submitURL, auth=(self.username, self.password))
         return r.text
+
+    ### Issues ###
+    def issues_add(self, project, summary, description=None, attachment=None, permittedGroup=None):
+        '''
+        #PUT /rest/issue?{project}&{summary}&{description}&{attachments}&{permittedGroup}
+        :param project: STRING to define the project for the new issue
+        :param summary: STRING "title" of the new issue
+        :param description: STRING description of the issue
+        :param attachment: Not Yet Available
+        :param permittedGroup: STRING to set the visibility group
+        :return: A message indicating success, ticket number, title and description otherwise failure
+        '''
+        submitURL = self.baseURL + "issue?project=" + project + "&summary=" + summary
+        if description != None:
+            submitURL += "&description=" + description
+        # if attachment != None:
+        #     submitURL += "&" + attachment
+        # if permittedGroup != None:
+        #     submitURL += "&" + permittedGroup
+
+        #Submit the push request to create a ticket
+        r = requests.put(submitURL, auth=(self.username, self.password))
+        print r.status_code
+        print r.text
+        print r.headers
+        print r.iter_lines
